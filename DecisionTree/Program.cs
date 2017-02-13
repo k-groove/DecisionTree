@@ -10,9 +10,11 @@ namespace DecisionTree
 {
     class Program
     {
-        static Node _rootNode = new Node("Root", string.Empty);
+        static Node _rootNode = new Node("ROOT", string.Empty);
         static int bfsCount = 0;
         static int dfsCount = 0;
+        static int tabcount = 1;
+
         static void Main(string[] args)
         {
             Console.WriteLine(" Enter xml file path: ");
@@ -20,21 +22,24 @@ namespace DecisionTree
             XmlDocument file = new XmlDocument();
             file.Load(filepath);
             XmlToTree(file);
+            DisplayTree(_rootNode,tabcount);
+            for (var i = 0; i < 50; i++) Console.Write("-");
+            Console.WriteLine();
             Start();
         }
 
         public static void Start()
         {
-            //GetChoices(node);
-            Console.Write(" Enter search term or quit to exit: ");
-            var choice = Console.ReadLine();
-
-            if (choice == "quit" || choice == "exit") Environment.Exit(0);
-
-            BreadthFirstSearch(_rootNode, choice);//node, search term
-            DepthFirstSearch(_rootNode, choice);//node, search term, counter
             bfsCount = 0;
             dfsCount = 0;
+            Console.Write(" Enter search term or quit to exit: ");
+
+            var searchTerm = Console.ReadLine();
+
+            if (searchTerm == "quit" || searchTerm == "exit") Environment.Exit(0);
+
+            BreadthFirstSearch(_rootNode, searchTerm);//node, search term
+            DepthFirstSearch(_rootNode, searchTerm);//node, search term, counter            
             Start();
         }
 
@@ -74,18 +79,22 @@ namespace DecisionTree
                     }
                     if (n.behavior.ToLower() == input.ToLower())
                     {
+                        bfsCount++;
                         Console.WriteLine(string.Format("{0} - found in {1} steps with breadth first search.", input, bfsCount));
 
                         if (!string.IsNullOrEmpty(n.children[0].response) && n.children.Count > 0)
                         {
                             var randomNum = GetRandom(n.children.Count);
                             Console.WriteLine("Response is: " + n.children[randomNum].response);
+                            bfsCount++;
                             return;
                         }
                         BreadthFirstSearch(n, n.children[GetRandom(n.children.Count)].behavior);
+                        return;
                     }
                     bfsCount++;
                 }
+                bfsCount++;
             }
             Console.WriteLine(string.Format("{0} was not found in the tree.", input));
         }
@@ -100,18 +109,37 @@ namespace DecisionTree
             {
                 if (n.behavior.ToLower() == input.ToLower())
                 {
+                    dfsCount++;
                     Console.WriteLine(string.Format("{0} - found in {1} steps with depth first search.", input, dfsCount));
                     if (!string.IsNullOrEmpty(n.children[0].response) && n.children.Count > 0)
                     {
                         var randomNum = GetRandom(n.children.Count);
                         Console.WriteLine("Response is: " + n.children[randomNum].response);
+                        dfsCount++;
                         return;
                     }
-                    DepthFirstSearch(n, n.children[GetRandom(n.children.Count)].behavior);
-                    dfsCount++;
+                    DepthFirstSearch(n, n.children[GetRandom(n.children.Count)].behavior);                    
+                    return;
                 }
                 DepthFirstSearch(n, input);
                 dfsCount++;
+            }
+        }
+
+        public static void DisplayTree(Node node, int tabcount)
+        {
+            string tabspace = "    ";
+            if (node.behavior == "ROOT") Console.WriteLine("<root> "+node.behavior);
+            foreach(Node n in node.children)
+            {
+                for(var i=0; i < tabcount; i++) Console.Write(tabspace);
+                if (string.IsNullOrEmpty(n.response)) Console.WriteLine("Behavior = " + n.behavior);
+                Console.Write(tabspace);
+                //weird formatting
+                if (string.IsNullOrEmpty(n.behavior) && tabcount != 1) Console.WriteLine(tabspace + "Response = " + n.response);
+                if (string.IsNullOrEmpty(n.behavior) && tabcount == 1) Console.WriteLine(tabspace + "       Response = " + n.response);
+                DisplayTree(n, ++tabcount);
+                tabcount = 1;
             }
         }
 
@@ -120,7 +148,7 @@ namespace DecisionTree
         {
             Random rand = new Random();
             return rand.Next(count);
-        }
+        }        
     }
 
     public class Node
