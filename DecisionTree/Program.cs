@@ -13,7 +13,6 @@ namespace DecisionTree
         static Node _rootNode = new Node("ROOT", string.Empty);
         static int bfsCount = 0;
         static int dfsCount = 0;
-        static int tabcount = 1;
 
         static void Main(string[] args)
         {
@@ -22,7 +21,7 @@ namespace DecisionTree
             XmlDocument file = new XmlDocument();
             file.Load(filepath);
             XmlToTree(file);
-            DisplayTree(_rootNode,tabcount);
+            DisplayTree(_rootNode);
             for (var i = 0; i < 50; i++) Console.Write("-");
             Console.WriteLine();
             Start();
@@ -126,20 +125,27 @@ namespace DecisionTree
             }
         }
 
-        public static void DisplayTree(Node node, int tabcount)
+        public static void DisplayTree(Node node)
         {
-            string tabspace = "    ";
+            string tab = "    ";
             if (node.behavior == "ROOT") Console.WriteLine("<root> "+node.behavior);
             foreach(Node n in node.children)
             {
-                for(var i=0; i < tabcount; i++) Console.Write(tabspace);
-                if (string.IsNullOrEmpty(n.response)) Console.WriteLine("Behavior = " + n.behavior);
-                Console.Write(tabspace);
-                //weird formatting
-                if (string.IsNullOrEmpty(n.behavior) && tabcount != 1) Console.WriteLine(tabspace + "Response = " + n.response);
-                if (string.IsNullOrEmpty(n.behavior) && tabcount == 1) Console.WriteLine(tabspace + "       Response = " + n.response);
-                DisplayTree(n, ++tabcount);
-                tabcount = 1;
+                //for(var i=0; i < tabcount; i++) Console.Write(tabspace);
+                Console.Write(tab);
+                if (string.IsNullOrEmpty(n.response) && !string.IsNullOrEmpty(n.children[0].behavior))
+                {
+                    Console.WriteLine("Behavior = " + n.behavior);
+                    Console.Write(tab);
+                }
+
+                if (string.IsNullOrEmpty(n.response) && string.IsNullOrEmpty(n.children[0].behavior))
+                    Console.WriteLine("Behavior = " + n.behavior);
+
+                if (string.IsNullOrEmpty(n.behavior))
+                    Console.WriteLine(tab+tab+"Response = " + n.response);
+                Console.Write(tab);
+                DisplayTree(n);
             }
         }
 
