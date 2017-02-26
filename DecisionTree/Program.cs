@@ -26,6 +26,7 @@ namespace DecisionTree
             Console.WriteLine();
             //Display file contents in console
             file.Save(Console.Out);
+            Console.WriteLine();
             //Put file contents in Decision Tree
             XmlToTree(file);
             //Divider line
@@ -38,6 +39,7 @@ namespace DecisionTree
         {
             bfsCount = 0;
             dfsCount = 0;
+            Console.WriteLine();
             Console.Write(" Enter search term or quit to exit: ");
 
             var searchTerm = Console.ReadLine();
@@ -70,7 +72,6 @@ namespace DecisionTree
 
         public static void BreadthFirstSearch(Node node, string input)
         {
-            bfsCount++;
             Queue<Node> queue = new Queue<Node>();
             queue.Enqueue(node);
             while (queue.Count > 0)
@@ -85,7 +86,7 @@ namespace DecisionTree
                     }
                     if (n.behavior.ToLower() == input.ToLower())
                     {
-                        //bfsCount++;
+                        bfsCount++;
                         Console.WriteLine(string.Format("{0} - found in {1} steps with breadth first search.", input, bfsCount));
 
                         if (!string.IsNullOrEmpty(n.children[0].response) && n.children.Count > 0)
@@ -98,7 +99,7 @@ namespace DecisionTree
                         BreadthFirstSearch(n, n.children[GetRandom(n.children.Count)].behavior);
                         return;
                     }
-                    //bfsCount++;
+                    bfsCount++;
                 }
             }
             Console.WriteLine(string.Format("{0} was not found in the tree.", input));
